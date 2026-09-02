@@ -19,6 +19,12 @@ To make a production build:
 npm run build
 ```
 
+To run the tests:
+
+```bash
+npm test
+```
+
 ## API URL
 
 The app uses the take-home API by default:

@@ -57,14 +57,16 @@ I would add a separate analytics view using the historical `/api/events` range e
 
 I would keep this separate from the live map because the two endpoints represent different kinds of data.
 
-### Add tests
+### Testing
 
-The first tests I would add are:
+There is now a small test suite covering the main state and stream behaviour:
 
 - Unit tests for event filtering
 - Tests for SSE parsing and duplicate events
-- Component tests for loading, error, empty, and disconnected states
-- An integration test using a mocked `EventSource`
+- Component tests for loading, error, and empty states
+- A mocked `EventSource` for connection and malformed payload behaviour
+
+With more time, I would add broader integration coverage around reconnect timing and map interactions.
 
 ### Improve the map experience
 
