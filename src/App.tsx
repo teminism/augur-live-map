@@ -1,122 +1,117 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
+import { useEffect, useMemo, useState } from 'react';
+import { getVenues } from './api/venues';
+import { EventFilters } from './components/EventFilters';
+import { LiveMap } from './components/LiveMap';
+import { SeverityLegend } from './components/SeverityLegend';
+import { StatusBanner } from './components/StatusBanner';
+import { useEventStream } from './hooks/useEventStream';
+import type { EventFilters as Filters, Venue } from './types/api';
+import { filterEvents } from './utils/events';
 
-function App() {
-  const [count, setCount] = useState(0)
+const initialFilters: Filters = {
+  venueId: '',
+  type: '',
+  severity: '',
+};
+
+export default function App() {
+  const [venues, setVenues] = useState<Venue[]>([]);
+  const [venuesLoading, setVenuesLoading] = useState(true);
+  const [venuesError, setVenuesError] = useState<string | null>(null);
+  const [filters, setFilters] = useState<Filters>(initialFilters);
+
+  const { events, status, reconnect } = useEventStream();
+
+  // Load venues on mount
+  useEffect(() => {
+    async function loadVenues() {
+      try {
+        setVenuesLoading(true);
+        setVenuesError(null);
+        const data = await getVenues();
+        setVenues(data);
+      } catch (error) {
+        setVenuesError(error instanceof Error ? error.message : 'Unable to load venues');
+      } finally {
+        setVenuesLoading(false);
+      }
+    }
+
+    loadVenues();
+  }, []);
+
+  // Apply filters to events
+  const filteredEvents = useMemo(() => filterEvents(events, filters), [events, filters]);
+
+  // Check if we've received any events yet
+  const hasReceivedEvents = events.length > 0;
+
+  // Determine empty state message
+  const emptyMessage = !hasReceivedEvents
+    ? {
+        title: 'Waiting for live events',
+        description: 'Detection events will appear here as they arrive.',
+      }
+    : {
+        title: 'No matching events',
+        description: 'Try adjusting your filters.',
+      };
+
+  // Loading state
+  if (venuesLoading) {
+    return (
+      <main className="app-state">
+        <div className="spinner" />
+        <p>Loading venues…</p>
+      </main>
+    );
+  }
+
+  // Error state
+  if (venuesError) {
+    return (
+      <main className="app-state">
+        <h1>Unable to load venues</h1>
+        <p>{venuesError}</p>
+        <button onClick={() => window.location.reload()}>Try again</button>
+      </main>
+    );
+  }
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
+    <main className="app">
+      <header className="app-header">
         <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
+          <p className="eyebrow">AUGUR</p>
+          <h1>Live detection map</h1>
+          <p className="subtitle">Real-time operational intelligence across venues</p>
         </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+        <StatusBanner status={status} onReconnect={reconnect} />
+      </header>
 
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
+      <section className="controls">
+        <EventFilters
+          venues={venues}
+          events={events}
+          filters={filters}
+          onChange={setFilters}
+        />
+        <div className="event-count">
+          Showing {filteredEvents.length} event{filteredEvents.length === 1 ? '' : 's'}
         </div>
       </section>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+      <SeverityLegend />
+
+      <section className="map-section">
+        {filteredEvents.length === 0 && (
+          <div className="empty-overlay">
+            <strong>{emptyMessage.title}</strong>
+            <span>{emptyMessage.description}</span>
+          </div>
+        )}
+        <LiveMap venues={venues} events={filteredEvents} />
+      </section>
+    </main>
+  );
 }
-
-export default App
