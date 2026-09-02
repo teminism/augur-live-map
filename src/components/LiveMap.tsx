@@ -3,7 +3,9 @@ import {
   MapContainer,
   Popup,
   TileLayer,
+  useMap,
 } from "react-leaflet";
+import { useEffect } from "react";
 import type {
   DetectionEvent,
   Severity,
@@ -13,6 +15,34 @@ import type {
 interface LiveMapProps {
   venues: Venue[];
   events: DetectionEvent[];
+  selectedVenue?: Venue;
+}
+
+interface MapViewportProps {
+  venue?: Venue;
+}
+
+function MapViewport({ venue }: MapViewportProps) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (!venue) {
+      return;
+    }
+
+    map.fitBounds(
+      [
+        [venue.bounds.south, venue.bounds.west],
+        [venue.bounds.north, venue.bounds.east],
+      ],
+      {
+        padding: [24, 24],
+        maxZoom: 16,
+      }
+    );
+  }, [map, venue]);
+
+  return null;
 }
 
 const severityRadius: Record<Severity, number> = {
@@ -32,6 +62,7 @@ const severityColor: Record<Severity, string> = {
 export function LiveMap({
   venues,
   events,
+  selectedVenue,
 }: LiveMapProps) {
   const fallbackCenter: [number, number] =
     venues.length > 0
@@ -49,6 +80,8 @@ export function LiveMap({
           attribution="&copy; OpenStreetMap contributors"
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
+
+        <MapViewport venue={selectedVenue} />
 
         {events.map((event) => {
           const venue = venues.find(

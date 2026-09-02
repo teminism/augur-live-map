@@ -42,6 +42,7 @@ export default function App() {
 
   // Apply filters to events
   const filteredEvents = useMemo(() => filterEvents(events, filters), [events, filters]);
+  const selectedVenue = venues.find((venue) => venue.id === filters.venueId);
 
   // Check if we've received any events yet
   const hasReceivedEvents = events.length > 0;
@@ -110,7 +111,11 @@ export default function App() {
             <span>{emptyMessage.description}</span>
           </div>
         )}
-        <LiveMap venues={venues} events={filteredEvents} />
+          <LiveMap
+            venues={venues}
+            events={filteredEvents}
+            selectedVenue={selectedVenue}
+          />
       </section>
     </main>
   );
