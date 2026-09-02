@@ -29,14 +29,28 @@ body {
   box-shadow: 0 2px 8px rgba(0,0,0,0.2);
 }
 
-.app-title h1 {
+.app-header h1 {
   font-size: 20px;
   font-weight: 600;
   letter-spacing: 0.5px;
 }
 
+.eyebrow {
+  color: #81c784;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  margin-bottom: 2px;
+}
+
+.subtitle {
+  color: #b8b8c8;
+  font-size: 12px;
+  margin-top: 3px;
+}
+
 /* Status Banner */
-.status-banner {
+.connection-status {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -46,14 +60,33 @@ body {
   font-weight: 500;
 }
 
-.status-banner-connected {
+.connection-status.connected {
   background: rgba(76, 175, 80, 0.2);
   color: #81c784;
 }
 
-.status-banner-disconnected {
+.connection-status.disconnected {
   background: rgba(255, 193, 7, 0.2);
   color: #ffd54f;
+}
+
+.connection-status.connecting {
+  background: rgba(33, 150, 243, 0.2);
+  color: #64b5f6;
+}
+
+.connection-status button {
+  padding: 4px 9px;
+  border: 1px solid currentColor;
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.connection-status button:hover {
+  background: rgba(255, 255, 255, 0.12);
 }
 
 .status-banner-error {
@@ -111,7 +144,7 @@ body {
 }
 
 /* Controls */
-.app-controls {
+.controls {
   display: flex;
   align-items: center;
   gap: 16px;
@@ -123,11 +156,43 @@ body {
   z-index: 999;
 }
 
-.event-filters {
+.filters {
   display: flex;
   gap: 16px;
   flex: 1;
   flex-wrap: wrap;
+}
+
+.filters label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #555;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.filters select {
+  min-width: 120px;
+  padding: 6px 12px;
+  border: 1px solid #d0d0d0;
+  border-radius: 6px;
+  background: white;
+  color: #333;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.filters select:focus {
+  outline: none;
+  border-color: #1976d2;
+  box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.1);
+}
+
+.event-count {
+  color: #666;
+  font-size: 13px;
+  white-space: nowrap;
 }
 
 .filter-group {
@@ -253,9 +318,11 @@ body {
 }
 
 /* Map */
-.app-map {
+.map-section {
   flex: 1;
   position: relative;
+  min-height: 0;
+  overflow: hidden;
   background: #f5f5f5;
 }
 
@@ -311,7 +378,7 @@ body {
 }
 
 /* Empty State */
-.empty-state {
+.empty-overlay {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -320,17 +387,27 @@ body {
   padding: 20px 30px;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  z-index: 500;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 220px;
   pointer-events: none;
+  text-align: center;
 }
 
-.empty-state p {
+.empty-overlay strong {
+  color: #333;
+  font-size: 15px;
+}
+
+.empty-overlay span {
   color: #777;
   font-size: 14px;
 }
 
 /* Loading & Error States */
-.app-loading,
-.app-error {
+.app-state {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -338,6 +415,29 @@ body {
   height: 100vh;
   background: #f5f5f5;
   gap: 16px;
+}
+
+.app-state h1 {
+  color: #d32f2f;
+  font-size: 22px;
+}
+
+.app-state p {
+  color: #555;
+}
+
+.app-state button {
+  padding: 10px 24px;
+  border: none;
+  border-radius: 6px;
+  background: #1976d2;
+  color: white;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.app-state button:hover {
+  background: #1565c0;
 }
 
 .app-error h2 {
@@ -376,24 +476,28 @@ body {
     padding: 12px 16px;
   }
 
-  .app-controls {
+  .controls {
     flex-direction: column;
     align-items: stretch;
     padding: 12px 16px;
   }
 
-  .event-filters {
+  .filters {
     flex-direction: column;
     gap: 10px;
   }
 
-  .filter-group {
+  .filters label {
     flex-direction: column;
     align-items: stretch;
   }
 
-  .filter-group select {
+  .filters select {
     width: 100%;
+  }
+
+  .event-count {
+    text-align: right;
   }
 
   .app-main {
