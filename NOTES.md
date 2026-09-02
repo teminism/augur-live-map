@@ -59,7 +59,7 @@ I would keep this separate from the live map because the two endpoints represent
 
 ### Testing
 
-There is now a small test suite covering the main state and stream behaviour:
+There is a small test suite covering the main state and stream behaviour:
 
 - Unit tests for event filtering
 - Tests for SSE parsing and duplicate events
