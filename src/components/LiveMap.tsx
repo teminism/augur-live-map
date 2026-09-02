@@ -62,10 +62,7 @@ export function LiveMap({
           return (
             <CircleMarker
               key={event.id}
-              center={[
-                venue.center.lat,
-                venue.center.lng,
-              ]}
+              center={[event.position.lat, event.position.lng]}
               radius={severityRadius[event.severity]}
               pathOptions={{
                 color: severityColor[event.severity],

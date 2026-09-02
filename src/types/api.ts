@@ -25,7 +25,7 @@ export interface DetectionEvent {
   type: string;
   severity: Severity;
   timestamp: string;
-  location: Coordinates;
+  position: Coordinates;
 }
 
 export interface EventFilters {
